@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs'; // Importar o bcryptjs
 // @access Público
 const reistrarUsuario = async (req, res) => {
     // Desestruturar os dados no corpo da requisição
-    const { nome, email, senha, endereco, telefone, nivelAcesso } = req.body; 
+    const { nomeCompleto, email, senha, endereco, telefone, nivelAcesso } = req.body; 
 
     try {
         // Verifica se o usuário já existe no banco dedados
@@ -21,7 +21,7 @@ const reistrarUsuario = async (req, res) => {
 
         // crair um novo usuário
         const novoUsuario = new Usuario({
-            nome,
+            nomeCompleto,
             email,
             senha: senhaCriptografada,
             endereco,
@@ -31,10 +31,10 @@ const reistrarUsuario = async (req, res) => {
 
         // Salvar o novo usuário no banco de dados
         await novoUsuario.save();
-        res.status(201).json({ msg: 'Usuário registrado com sucesso' });
+        res.status(201).json({ msg: 'Usuário registrado com sucesso', novoUsuario });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Erro no servidor' });
+        res.status(500).json({ msg: 'Erro no servidor', error: err.message });
     }
 }
 

@@ -1,6 +1,7 @@
 import express from 'express' // Importar o modulo express
 import connectDB from '../config/database.js'; // Importar a função de conexão com o banco de dados
 import dotenv from 'dotenv'; // Importar o dotenv
+import usuarioRoutes from './routes/usuarioRoutes.js';
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ app.use(express.json());
 
 // Conectar ao banco de dados
 connectDB();
+
+// Rotas de autenticação
+app.use('/api/usuarios', usuarioRoutes);
 
 app.get('/', (req, res) => {
   res.send('API funcionando!');
