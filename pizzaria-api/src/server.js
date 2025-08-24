@@ -2,6 +2,7 @@ import express from 'express' // Importar o modulo express
 import connectDB from '../config/database.js'; // Importar a função de conexão com o banco de dados
 import dotenv from 'dotenv'; // Importar o dotenv
 import usuarioRoutes from './routes/usuarioRoutes.js';
+import pizzaRoutes from './routes/pizzaRoutes.js';
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ connectDB();
 
 // Rotas de autenticação
 app.use('/api/usuarios', usuarioRoutes);
+// Rotas de pizzas
+app.use('/api/pizzas', pizzaRoutes);
 
 app.get('/', (req, res) => {
   res.send('API funcionando!');
