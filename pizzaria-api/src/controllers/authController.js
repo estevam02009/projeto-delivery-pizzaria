@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 // @desc Registrar um novo usuário
 // @route POST /api/usuarios/registrar
 // @access Público
-const reistrarUsuario = async (req, res) => {
+const registrarUsuario = async (req, res) => {
     // Desestruturar os dados no corpo da requisição
     const { nomeCompleto, email, senha, endereco, telefone, nivelAcesso } = req.body; 
 
@@ -90,4 +90,89 @@ const listarUsuarios = async (req, res) => {
     }
 }
 
-export { reistrarUsuario, loginUsuario, listarUsuarios };
+// @desc    Atualizar usuario
+// @route   PUT /api/usuarios/:id
+// @acesso  Privado (Apenas para o próprio usuário ou o admin do sistema)
+const updateUsuario = async (req, res) => {
+    const { id } = req.params; // ID do usuário
+    const { senha } = req.body; // Puxamos a senha para trata-la separadamente
+
+    try {
+        // Verificar se o usuário existe
+        const usuario = await Usuario.findById(id);
+        if (!usuario) {
+            return res.status(404).json({ msg: 'Usuário não encontrado' });
+        }
+
+        // Verificação de segurança: Apenas o proprio usuario ou um admin pode atualizar
+        if (req.usuario._id.toString() !== usuario._id.toString() && req.usuario.nivelAcesso !== 'admin') {
+            return res.status(403).json({ msg: 'Acesso negado. Usuário não é o próprio ou administrador.' });
+        }
+
+        // Se a senha for enviada
+        if (senha) {
+            const salt = await bcrypt.genSalt(10);
+            req.body.senha = await bcrypt.hash(senha, salt);
+        }
+
+        // Encontrar e atualizar o usuário
+        const usuarioAtualizado = await Usuario.findByIdAndUpdate(id, req.body, { 
+            new: true,
+            runValidators: true
+        });
+        res.status(200).json({ msg: 'Usuário atualizado com sucesso', usuario: usuarioAtualizado });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Erro no servidor', error: err.message });
+    }
+}
+
+// @desc Obter um usuário por ID
+// @route GET /api/usuarios/:id
+// @access Privado
+const obterPerfil = async (req, res) => {
+    try {
+       // acessar os dados do usuário que foram anexados à requisição pelo middleware "porteger"
+       const usuario = {
+        _id: req.usuario._id,
+        nomeCompleto: req.usuario.nomeCompleto,
+        email: req.usuario.email,
+        nivelAcesso: req.usuario.nivelAcesso,
+       }
+       res.status(200).json(usuario);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Erro no servidor', error: err.message });
+    }
+}
+
+// @desc    Excluir um usuário
+// @route   DELETE /api/usuarios/:id
+// @acesso  Privado (apenas para o próprio usuário ou admin)
+const deleteUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const usuario = await Usuario.findById(id);
+
+    if (!usuario) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    // Verificação de segurança: Apenas o próprio usuário ou um admin pode excluir
+    if (req.usuario._id.toString() !== usuario._id.toString() && req.usuario.nivelAcesso !== 'admin') {
+      return res.status(401).json({ mensagem: 'Não autorizado a excluir este usuário' });
+    }
+
+    await Usuario.findByIdAndDelete(id);
+
+    res.status(200).json({ mensagem: 'Usuário excluído com sucesso' });
+
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+
+// Exportar a nova função
+export { registrarUsuario, loginUsuario, listarUsuarios, obterPerfil, updateUsuario, deleteUsuario };

@@ -31,4 +31,15 @@ const proteger = async (req, res, next) => {
     }
 }
 
-export { proteger };
+// Função para verificar se o usuário é admin
+const admin = (req, res, next) => {
+    // Verificar se o usuário existe e se é admin
+    if (req.usuario && req.usuario.nivelAcesso === 'admin') {
+        next();
+    } else {
+        // Se não for admin, retornar um erro 403 (Proibido)
+        res.status(403).json({ msg: 'Acesso negado. Usuário não é administrador.' });
+    }
+}
+
+export { proteger, admin };
