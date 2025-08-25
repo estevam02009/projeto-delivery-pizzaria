@@ -20,8 +20,8 @@ const criarPizza = async (req, res) => {
     const novaPizza = await Pizza.create(req.body);
 
     res.status(201).json({ mensagem: 'Pizza criada com sucesso!', pizza: novaPizza });
-  } catch (erro) {
-    console.error(erro);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };

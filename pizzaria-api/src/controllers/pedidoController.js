@@ -19,7 +19,7 @@ const criarPedido = async (req, res) => {
         for (const item of items) {
             const pizza = await Pizza.findById(item.pizza);
 
-            console.log('Documento da pizza recuperado:', pizza); // Linha para depuração
+            // console.log('Documento da pizza recuperado:', pizza); // Linha para depuração
 
             if (!pizza) {
                 return res.status(400).json({ message: `Pizza com ID ${item.pizza} não encontrada` });
@@ -46,7 +46,7 @@ const criarPedido = async (req, res) => {
         }
 
         // Crioar o pedido no banco de dados
-        const novoPedido = new Pedido({
+        const novoPedido = await Pedido.create({
             user: req.usuario.id,
             items: pedidoItems,
             totalAmount,
@@ -58,6 +58,7 @@ const criarPedido = async (req, res) => {
 
         res.status(201).json({ mensagem: 'Pedido criado com sucesso!', pedido: novoPedido });
     } catch (err) {
+        console.error('Erro ao criar o pedido:', err);
         res.status(500).json({ mensagem: 'Erro ao criar o pedido', erro: err.message });
     }
 }
