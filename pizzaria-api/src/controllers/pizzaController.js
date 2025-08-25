@@ -32,7 +32,7 @@ const criarPizza = async (req, res) => {
 const listarPizzas = async (req, res) => {
   try {
     const pizzas = await Pizza.find();
-    res.status(200).json({pizzas});
+    res.status(200).json({ pizzas });
   } catch (err) {
     console.error(err);
     res.status(500).json({ mensagem: 'Erro no servidor' });
@@ -59,29 +59,25 @@ const obterPizzaPorId = async (req, res) => {
   }
 };
 
-// @desc    Atualizar uma pizza por ID
-// @route   PUT /api/pizzas/:id
-// @acesso  Privado (apenas administradores)
+// @desc    Atualizar uma pizza por ID
+// @route   PUT /api/pizzas/:id
+// @acesso  Privado (apenas administradores)
 const atualizarPizza = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, preco, ingredientes } = req.body;
 
-    const pizza = await Pizza.findById(id);
+    // Usa findByIdAndUpdate para encontrar e atualizar em uma única operação.
+    const pizzaAtualizada = await Pizza.findByIdAndUpdate(id, req.body, {
+      new: true, // Retorna o documento atualizado
+      runValidators: true // Roda os validadores do schema na atualização
+    });
 
-    if (!pizza) {
+    if (!pizzaAtualizada) {
       return res.status(404).json({ mensagem: 'Pizza não encontrada' });
     }
-    
-    // Atualizar os campos da pizza com os dados do corpo da requisição
-    pizza.nome = nome;
-    pizza.preco = preco;
-    pizza.ingredientes = ingredientes;
 
-    // Salvar as alterações no banco de dados
-    await pizza.save();
+    res.status(200).json({ mensagem: 'Pizza atualizada com sucesso!', pizza: pizzaAtualizada });
 
-    res.status(200).json({ mensagem: 'Pizza atualizada com sucesso!', pizza });
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ mensagem: 'Erro no servidor' });
@@ -95,14 +91,11 @@ const deletarPizza = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const pizza = await Pizza.findById(id);
+    const pizza = await Pizza.findByIdAndDelete(id);
 
     if (!pizza) {
       return res.status(404).json({ mensagem: 'Pizza não encontrada' });
     }
-    
-    // Deletar a pizza do banco de dados
-    await pizza.remove();
 
     res.status(200).json({ mensagem: 'Pizza deletada com sucesso!', pizza });
   } catch (erro) {

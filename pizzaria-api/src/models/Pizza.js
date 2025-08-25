@@ -28,7 +28,7 @@ const PizzaSchema = new mongoose.Schema({
         type: String,
         required: true,
     }],
-    preco: [PrecoSchema], // Usamos o Schema do preço aqui
+    precos: [PrecoSchema], // Usamos o Schema do preço aqui
     imagem: {
         type: String,
         default: 'sem_imagem.jpg' // Url da imagem, com um valor padrão

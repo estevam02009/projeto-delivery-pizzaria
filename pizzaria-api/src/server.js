@@ -3,6 +3,7 @@ import connectDB from '../config/database.js'; // Importar a função de conexã
 import dotenv from 'dotenv'; // Importar o dotenv
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import pizzaRoutes from './routes/pizzaRoutes.js';
+import pedidoRoutes from './routes/pedidoRoutes.js';
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ connectDB();
 app.use('/api/usuarios', usuarioRoutes);
 // Rotas de pizzas
 app.use('/api/pizzas', pizzaRoutes);
+// Rotas de pedidos
+app.use('/api/pedidos', pedidoRoutes);
 
 app.get('/', (req, res) => {
   res.send('API funcionando!');
